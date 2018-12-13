@@ -4,8 +4,9 @@ const fs = require("fs");
 const { promisify } = require("util");
 
 const readFile = promisify(fs.readFile);
+const fileExists = promisify(fs.exists)
 const execa = require('execa');
-const getStream = require('get-stream');
+
 
 const handleMigrate = async (projectName, projectDir) => {
 
@@ -17,6 +18,16 @@ const handleMigrate = async (projectName, projectDir) => {
         const publishedBinFolder = `${projectDir}\\${projectName}\\bin\\Release\\Publish\\bin`
         const publishedFolder = `${projectDir}\\${projectName}\\bin\\Release\\Publish`
         const packageConfigPath = `${projectDir}\\${projectName}\\packages.config`
+
+
+        let packageConfigExist = await fileExists(packageConfigPath)
+
+        if (!packageConfigExist) {
+
+            console.log(`packages.config does not exist`);
+            process.exit(1)
+        }
+
 
         const efVersion = await extractEntityFrameworkVersion(packageConfigPath);
         const migrateConsole = `${projectDir}\\packages\\EntityFramework.${efVersion}\\tools\\migrate.exe`
